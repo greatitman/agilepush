@@ -1,5 +1,12 @@
 -module(area_server).
--export([loop/0]).
+-export([loop/0,rpc/2]).
+
+rpc(Pid,Request)	->
+	Pid ! {self(),Request},
+	receive
+		Response	->
+			Response
+	end.
 
 loop()	->
 	receive
@@ -7,7 +14,13 @@ loop()	->
 			io:format("Area of rect is ~p~n",[W*H]),
 			Fro!W*H,
 			loop();
+		{From,{circle,R}}	->
+			From ! 3.14159 *R * R,
+			loop();
 		{square,S}	->
 			io:format("Area os square is ~p~n",[S*S]),
+			loop();
+		{From,Other}	->
+			From !{error,Other},
 			loop()
 end.
